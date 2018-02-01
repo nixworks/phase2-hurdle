@@ -70,17 +70,17 @@ The Phase 2 Hurdle is very computationally intensive, as it will run 3 instances
 These instructions have been validated on systems running Ubuntu 16.04 64 bit and Ubuntu 14.04 64bit. For reference, the final evaluation will be run on an Amazon EC2 instance with specifications to be released along with the Hurdle Bots at a later date.
 
 ### Installing LXD
-The Phase 2 Hurdle Framework uses LXC containers managed by the LXD daemon. These instructions require that you use a version of LXD at least as recent as 2.16. To get the most recent version stable of LXD, add the Ubuntu Containers Team PPA to your Ubuntu 16 package manager:
+The Phase 2 Hurdle Framework uses LXC containers managed by the LXD daemon. These instructions require that you use a version of LXD at least as recent as 2.21. To get the most recent version stable of LXD, add the Xenial Backports repository to your Ubuntu 16 package manager:
 
 ```bash
-sudo add-apt-repository ppa:ubuntu-lxc/lxd-stable
+sudo echo "deb http://archive.ubuntu.com/ubuntu xenial-backports main restricted universe multiverse" >> /etc/apt/sources.list
 sudo apt-get update
 ```
 
 Install and initialize the most recent stable version of LXD with:
 
 ```bash
-sudo apt install lxd
+sudo apt-get -y -t xenial-backports install lxd
 sudo lxd init
 ```
 
@@ -308,7 +308,7 @@ Export a dummy image to /share/nas/competitor/images in the phase2Hurdle contain
 following command at the phase2Hurdle root terminal:
 
 ```bash
-lxc image export dummy-image /share/nas/competitor/images/dummy-image.tar.gz
+lxc image export dummy-image /share/nas/competitor/images/dummy-image
 ```
 
 ### Running the Hurdle Script
@@ -335,6 +335,7 @@ traffic_scoring INFO: Bot at IP: 192.168.103.2 received 246 packets from 192.168
 traffic_scoring INFO: Bot at IP: 192.168.103.2 received 250 packets from 192.168.102.2
 traffic_scoring INFO: Bot network transfered a total of 1504 packets out of 1560
 traffic_scoring INFO: Competitor network transfered a total of 0 packets out of 1560
+```
 
 If you see less than 1450 packets transfered, your system may not have sufficient processing power to run the hurdle.
 
