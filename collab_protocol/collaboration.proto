@@ -583,6 +583,9 @@ message InformationalDeclaration
 
     ///See the NodeLevelResourceUsage data type documentation.
     repeated NodeLevelResourceUsage node_level_resource_usage = 107;
+
+    ///See the SpectrumUsagePreference data type documentation.
+    repeated SpectrumUsagePreference spectrum_usage_preference = 108;
 }
 
 /// Use this message to describe the content of a particular transmission.
