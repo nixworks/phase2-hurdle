@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Envsim Viewer
-# Generated: Fri Jan  5 14:50:52 2018
+# Generated: Thu Apr  5 16:10:46 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -24,7 +24,6 @@ from gnuradio import zeromq
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
 from optparse import OptionParser
-import ConfigParser
 import sip
 import sys
 from gnuradio import qtgui
@@ -32,7 +31,7 @@ from gnuradio import qtgui
 
 class envsim_viewer(gr.top_block, Qt.QWidget):
 
-    def __init__(self):
+    def __init__(self, debug_ip='10.169.25.92', port_num=52005):
         gr.top_block.__init__(self, "Envsim Viewer")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Envsim Viewer")
@@ -57,20 +56,21 @@ class envsim_viewer(gr.top_block, Qt.QWidget):
         self.restoreGeometry(self.settings.value("geometry").toByteArray())
 
         ##################################################
+        # Parameters
+        ##################################################
+        self.debug_ip = debug_ip
+        self.port_num = port_num
+
+        ##################################################
         # Variables
         ##################################################
-        self.zmq_base_addr = zmq_base_addr = "tcp://10.169.25.92:"
+        self.zmq_base_addr = zmq_base_addr = "tcp://" + debug_ip + ":"
         self.samp_rate = samp_rate = 1e6
-        self._port_num_base_config = ConfigParser.ConfigParser()
-        self._port_num_base_config.read('config_file')
-        try: port_num_base = self._port_num_base_config.getint('main', 'port_num_base')
-        except: port_num_base = 52001
-        self.port_num_base = port_num_base
 
         ##################################################
         # Blocks
         ##################################################
-        self.zeromq_pull_source_0 = zeromq.pull_source(gr.sizeof_gr_complex, 1, zmq_base_addr+str(port_num_base+3), 100, False, -1)
+        self.zeromq_pull_source_0 = zeromq.pull_source(gr.sizeof_gr_complex, 1, zmq_base_addr+str(port_num), 100, False, -1)
         self.qtgui_sink_x_0 = qtgui.sink_c(
         	1024, #fftsize
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -101,6 +101,19 @@ class envsim_viewer(gr.top_block, Qt.QWidget):
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
+    def get_debug_ip(self):
+        return self.debug_ip
+
+    def set_debug_ip(self, debug_ip):
+        self.debug_ip = debug_ip
+        self.set_zmq_base_addr("tcp://" + self.debug_ip + ":")
+
+    def get_port_num(self):
+        return self.port_num
+
+    def set_port_num(self, port_num):
+        self.port_num = port_num
+
     def get_zmq_base_addr(self):
         return self.zmq_base_addr
 
@@ -114,14 +127,21 @@ class envsim_viewer(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate
         self.qtgui_sink_x_0.set_frequency_range(0, self.samp_rate)
 
-    def get_port_num_base(self):
-        return self.port_num_base
 
-    def set_port_num_base(self, port_num_base):
-        self.port_num_base = port_num_base
+def argument_parser():
+    parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
+    parser.add_option(
+        "", "--debug-ip", dest="debug_ip", type="string", default='10.169.25.92',
+        help="Set debug_ip [default=%default]")
+    parser.add_option(
+        "", "--port-num", dest="port_num", type="intx", default=52005,
+        help="Set port_num [default=%default]")
+    return parser
 
 
 def main(top_block_cls=envsim_viewer, options=None):
+    if options is None:
+        options, _ = argument_parser().parse_args()
 
     from distutils.version import StrictVersion
     if StrictVersion(Qt.qVersion()) >= StrictVersion("4.5.0"):
@@ -129,7 +149,7 @@ def main(top_block_cls=envsim_viewer, options=None):
         Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
-    tb = top_block_cls()
+    tb = top_block_cls(debug_ip=options.debug_ip, port_num=options.port_num)
     tb.start()
     tb.show()
 

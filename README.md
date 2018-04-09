@@ -21,6 +21,8 @@ followed by [Instructions and Logistics][phase 2 hurdle instructions and logisti
 * [Scoring Bot Behavior Specification](doc/Scoring-Bot-Specification.md)
 * [RF Environment Simulator Specification](doc/RF-Environment-Sim-Specification.md)
 * [Timed Transmissions with Stream Tags](doc/Timed-Transmissions-with-Stream-Tags.md)
+* [Hurdle Debug Tool Configuration](doc/Hurdle-Debug-Additional-Tools.md)
+* [ENVSIM Debug Mode Documentation](doc/Envsim-Debug-Mode.md)
 
 These files can all be found under the [doc/](doc/) directory in this repository.
 

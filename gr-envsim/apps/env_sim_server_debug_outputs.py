@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Env Sim Server Debug Outputs
-# Generated: Wed Jan 10 21:08:10 2018
+# Generated: Wed Apr  4 16:03:29 2018
 ##################################################
 
 from gnuradio import analog
@@ -52,7 +52,7 @@ class env_sim_server_debug_outputs(gr.top_block):
         try: increment_usrp_address_bool = self._increment_usrp_address_bool_config.getboolean('main', 'increment_usrp_address')
         except: increment_usrp_address_bool = True
         self.increment_usrp_address_bool = increment_usrp_address_bool
-        self.eth0_addr = eth0_addr = str(ni.ifaddresses("eth0")[ni.AF_INET][0]['addr'].decode('utf-8'))
+        self.eth0_addr = eth0_addr = temp_py_mod.get_debug_ip()
         self.zmq_base_addr = zmq_base_addr = "tcp://" + eth0_addr + ":"
         self.usrp_ip_list = usrp_ip_list = temp_py_mod.make_usrp_ip_list(increment_usrp_address_bool, usrp_ip_prefix_str, usrp_ip_base, num_nodes)
         self._samp_rate_config = ConfigParser.ConfigParser()

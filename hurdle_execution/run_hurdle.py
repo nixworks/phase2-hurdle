@@ -22,7 +22,7 @@ COMPETITOR_NAME_BASE='competitor-hurdle-srn'
 NUM_COMPETITOR_CONTAINERS = 3
 NUM_BOT_CONTAINERS = 3
 
-CONTAINER_BOOT_TIMEOUT=300.0
+#CONTAINER_BOOT_TIMEOUT=300.0
 COMMAND_PATH_BASE="./"
 
 ENVSIM_PORT_NUM_BASE=52001
@@ -287,8 +287,8 @@ def main():
     parser.add_argument('--image-file', default="competitor-image.tar.gz",
                         help="Name of the container stored in /share/nas/competitor/images/ to use for this run")
 
-    parser.add_argument('--disable-competitor-containers', action="store_true", default=False,
-                        help="When specified, the run script will not use the competitor containers")
+    # parser.add_argument('--disable-competitor-containers', action="store_true", default=False,
+    #                     help="When specified, the run script will not use the competitor containers")
 
     parser.add_argument('--clean-competitor-containers', action="store_true", default=False,
                         help="When specified, this flag will make the run script remove the competitor containers at the end of a run")
@@ -304,6 +304,9 @@ def main():
 
     parser.add_argument('--enable-debug-output', action="store_true", default=False,
                         help="When specified, this flag will run the envsim with a ZMQ push socket that outputs the samples sent to competitor containers")
+
+    parser.add_argument('--container-boot-timeout', type=float, default=300.0,
+                        help="Controls how long the hurdle will wait for a container to boot before starting traffic")
 
 
     # parse args and store to dictionary
@@ -326,7 +329,8 @@ def main():
     else:
         raise ValueError("Uknown bot mode {} specified".format(args["bot_mode"]))
 
-    if args["disable_competitor_containers"]:
+    # Commenting out an older bot debug mode that is no longer supported
+    if False: #args["disable_competitor_containers"]:
         comp_containers = []
         comp_container_names = []
         # put envsim into a 3 channel mode instead of the full six channel mode
@@ -432,7 +436,8 @@ def main():
     handle_collab_server(action="start")
 
     # poll containers for ready state in radio_api loop
-    poll_radio_api_for_start_with_timeout(bot_containers, comp_containers, CONTAINER_BOOT_TIMEOUT)
+    poll_radio_api_for_start_with_timeout(bot_containers, comp_containers,
+                                          args["container_boot_timeout"])
 
     print("all containers booted")
 
