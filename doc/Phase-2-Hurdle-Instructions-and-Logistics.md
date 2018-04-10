@@ -21,9 +21,10 @@ Hurdle framework, incorporate and test solutions locally, and submit solutions f
 3. [Testing the Hurdle Configuration](#testing-the-hurdle-configuration)
 4. [Implementing a Hurdle Solution](#implementing-a-hurdle-solution)
 5. [Importing a Hurdle Solution Locally](#importing-a-hurdle-solution-locally)
-6. [Running the Hurdle](#running-the-hurdle)
-7. [Uploading a Hurdle Solution for Official Evaluation](#uploading-a-hurdle-solution-for-official-evaluation)
-8. [Resources](#resources)
+6. [Running the Practice Hurdle](#running-the-practice-hurdle)
+7. [Scoring Hurdle Evalutaion](#scoring-hurdle-evaluation)
+8. [Uploading a Hurdle Solution for Official Evaluation](#uploading-a-hurdle-solution-for-official-evaluation)
+9. [Resources](#resources)
 
 
 ## Obtaining the Phase 2 Hurdle Framework
@@ -385,7 +386,7 @@ lxc file push competitor-image-1-0.tar.gz phase2Hurdle/share/nas/competitor/imag
 This copies the file from the host and puts it in the /share/nas/competitor/images/ directory of the
 phase2Hurdle directory.
 
-## Running the Hurdle
+## Running the Practice Hurdle
 Once your image is copied into the phase2Hurdle container in the /share/nas/competitor/images/ directory, you are ready to run the hurdle.
 
 ### Running the Hurdle Script
@@ -431,9 +432,115 @@ Each of these files is an MGEN log. The three files starting with darpa-practice
 traffic logs and the three files starting with competitor-hurdle-srn are the log files from competitor
 containers. See the [MGEN Official Documentation](https://downloads.pf.itd.nrl.navy.mil/docs/mgen/mgen.html#_MGEN_Log_File) for specifics on how to interpret these log files.
 
+## Scoring Hurdle Evaluation
+
+The Scoring Hurdle will be evaluated on an Amazon EC2 **c5.9xlarge** instance. See
+[here](https://aws.amazon.com/ec2/instance-types/) for full specifications, but in summary, this
+instance has 36 Intel Xeon CPUs each running at 3GHz with a total of 72GiB of memory.
+
+The Scoring Hurdle uses a modified bot as described in the
+[Scoring Bot Specification](Scoring-Bot-Specification.md).
+
+This is the command that the official scoring run will use to evaluate your container:
+
+```bash
+./run_hurdle.py --duration=300 --image-file=competitor-image-1-0.tar.gz --clean-competitor-containers --bot-mode=scoring
+```
+
+See below for instructions on how to load the Scoring Bot Image into your container for local
+testing.
+
+### Install the Latest Scoring Bot Image
+
+These commands must be run every time there is an update to the bots. These commands will push the
+new image file into the phase2Hurdle container, remove the existing scoring bots, and install the
+new bot version. This will allow you to independently update practice bots and hurdle bots.
+
+You can move files into the phase2Hurdle container using LXD commands. To copy the
+darpa-scoring-srn-base-v1-0-0.tar.gz file into
+the phase2Hurdle container, run the following command on your host:
+
+```bash
+lxc file push darpa-scoring-srn-base-v1-0-0.tar.gz phase2Hurdle/share/nas/competitor/images/
+```
+
+This copies the file from the host and puts it in the /share/nas/competitor/images/ directory of the
+phase2Hurdle container.
+
+To remove the existing old versions of the bot containers from the phase2Hurdle container,
+and install the new version, run the following commands:
+
+
+First get a bash prompt inside the phase2Hurdle container by running this on your host.
+
+```bash
+lxc exec phase2Hurdle bash
+```
+
+Next run:
+
+```bash
+cd /root/phase2-hurdle/container_configuration/bot_containers
+./configure_bots.py --bot-type=scoring --image-name=darpa-scoring-srn-base-v1-0-0.tar.gz
+```
+
+This will remove any prexisting "scoring" containers, import the
+darpa-scoring-srn-base-v1-0-0.tar.gz image from /share/nas/competitor/images/, and configure 3
+instances of the new scoring bot version.
+
+When this command is complete, verify that you see all of these containers by running the following
+command from the root terminal in the phase2Hurdle container:
+
+```bash
+lxc list
+```
+
+You should see something similar to:
+
+```bash
++---------------------+---------+------+------+------------+-----------+
+|        NAME         |  STATE  | IPV4 | IPV6 |    TYPE    | SNAPSHOTS |
++---------------------+---------+------+------+------------+-----------+
+| darpa-scoring-srn1  | STOPPED |      |      | PERSISTENT | 0         |
++---------------------+---------+------+------+------------+-----------+
+| darpa-scoring-srn2  | STOPPED |      |      | PERSISTENT | 0         |
++---------------------+---------+------+------+------------+-----------+
+| darpa-scoring-srn3  | STOPPED |      |      | PERSISTENT | 0         |
++---------------------+---------+------+------+------------+-----------+
+| tgen1               | STOPPED |      |      | PERSISTENT | 0         |
++---------------------+---------+------+------+------------+-----------+
+| tgen2               | STOPPED |      |      | PERSISTENT | 0         |
++---------------------+---------+------+------+------------+-----------+
+| tgen3               | STOPPED |      |      | PERSISTENT | 0         |
++---------------------+---------+------+------+------------+-----------+
+| tgen4               | STOPPED |      |      | PERSISTENT | 0         |
++---------------------+---------+------+------+------------+-----------+
+| tgen5               | STOPPED |      |      | PERSISTENT | 0         |
++---------------------+---------+------+------+------------+-----------+
+| tgen6               | STOPPED |      |      | PERSISTENT | 0         |
++---------------------+---------+------+------+------------+-----------+
+```
+
+If you've previously loaded practice bots into the phase2Hurdle container, you will see entries
+for each of the three practice bots as well.
+
+Once your image is copied into the phase2Hurdle container in the /share/nas/competitor/images/
+directory, you are ready to run the scoring hurdle locally.
+
+### Running the Hurdle Script in Scoring Mode
+
+From your host use the following commands to log back in to the phase2Hurdle container and execute
+the hurdle:
+
+```bash
+lxc exec phase2Hurdle bash
+cd /root/phase2-hurdle/hurdle_execution
+./run_hurdle.py --duration=300 --image-file=competitor-image-1-0.tar.gz --clean-competitor-containers --bot-mode=scoring
+```
 
 ## Uploading a Hurdle Solution for Official Evaluation
-The specific steps for uploading Hurdle Solutions for evaluation will be provided here at a later date.
+The specific steps for uploading Hurdle Solutions to your hurdle uploads bucket for evaluation can
+be found here: [Uploading Solutions to S3](https://spectrumcollaborationchallenge.com/wp-content/uploads/Uploading_Solutions_to_S3_Phase2.pdf)
 
 ## Resources
 * [Official SC2 Phase 2 Hurdle Page](https://spectrumcollaborationchallenge.com/hurdles/)
@@ -444,7 +551,7 @@ The specific steps for uploading Hurdle Solutions for evaluation will be provide
 * [Collaboration Protocol Specification](Collaboration-Protocol-Specification.md)
 * [Practice Bot Behavior Specification](Practice-Bot-Specification.md)
 * [RF Environment Simulator Specification](RF-Environment-Sim-Specification.md)
-* **Hurdle Bot Behavior Specification** To be released at a later date
+* [Scoring Bot Behavior Specification](Scoring-Bot-Specification.md)
 * [MGEN Traffic Generator Homepage](https://www.nrl.navy.mil/itd/ncs/products/mgen)
 
 

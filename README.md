@@ -33,6 +33,7 @@ These files can all be found under the [doc/](doc/) directory in this repository
 ## Related Links
 * [Official SC2 Phase 2 Hurdle Page](https://spectrumcollaborationchallenge.com/hurdles/)
 * [Long Form Registration Page](https://spectrumcollaborationchallenge.com/register-for-phase-2-open-track/)
+* [Uploading Solutions to S3](https://spectrumcollaborationchallenge.com/wp-content/uploads/Uploading_Solutions_to_S3_Phase2.pdf)
 
 ## Code
 The source code used to run the hurdle, not including the bots, can be found in:
