@@ -211,7 +211,7 @@ def main():
         container.devices = dev_config_dict
         container.save()
 
-        # Setting up networking for bots
+        # Setting up networking for competitor containers
         # tr0 interfaces first
 
         tr0_name = "tr0"
@@ -228,20 +228,21 @@ def main():
                                         netmask=tr0_netmask)
 
 
-        # Next COL interface. Note that this schema expects that the collaboration server will be
-        # listening on subnet 172.30.COL0_IP_BASE.0
-        col0_name = "col0"
-        col0_ip = "172.30.{}.{}".format(COL0_IP_BASE, NUM_BOT_CONTAINERS+COL0_IP_BASE+i)
-        col0_netmask = "255.255.255.0"
-        col0_parent = "colbr0"
+        if i==0:
+            # Next COL interface. Note that this schema expects that the collaboration server will
+            #  be listening on subnet 172.30.COL0_IP_BASE.0
+            col0_name = "col0"
+            col0_ip = "172.30.{}.{}".format(COL0_IP_BASE, NUM_BOT_CONTAINERS+COL0_IP_BASE+i)
+            col0_netmask = "255.255.255.0"
+            col0_parent = "colbr0"
 
-        # set up the col0 interface for the current container
-        configure_container_inet_device(client=lxd_client,
-                                        cont_name=cont_name,
-                                        dev_name=col0_name,
-                                        address=col0_ip,
-                                        parent=col0_parent,
-                                        netmask=col0_netmask)
+            # set up the col0 interface for the current container
+            configure_container_inet_device(client=lxd_client,
+                                            cont_name=cont_name,
+                                            dev_name=col0_name,
+                                            address=col0_ip,
+                                            parent=col0_parent,
+                                            netmask=col0_netmask)
 
 
         # Next USRP interface.
