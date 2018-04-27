@@ -200,6 +200,11 @@ class CollabServer(object):
         # add socket to poller
         self.poller.register(client_socket, zmq.POLLOUT)
 
+        # handle race condition in container boot process that causes a collab
+        # client to expire prematurely
+        if len(self.clients) == 0:
+            self.tick = time.time()
+
         # store off new client
         self.clients[nonce] = {"ip_address":ip,
                                "keepalive_counter":self.keepalive,
